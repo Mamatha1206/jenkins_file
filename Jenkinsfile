@@ -8,7 +8,7 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                git 'https://github.com/your-repo/hello-world-python.git'
+                git 'https://github.com/Mamatha1206/jenkins_file.git'
             }
         }
 
