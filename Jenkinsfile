@@ -1,40 +1,44 @@
 pipeline {
     agent any
+
+    environment {
+        VENV = 'venv'  // Virtual environment name
+    }
+
     stages {
-        stage('Checkout') {
+        stage('Checkout Code') {
             steps {
-                git branch: 'main', url: 'https://github.com/Mamatha1206/jenkins_file.git'
+                git 'https://github.com/your-repo/hello-world-python.git'
             }
         }
-        stage('Setup Virtual Environment & Install Dependencies') {
+
+        stage('Setup Python') {
             steps {
-                sh '''
-                    python3 -m venv venv
-                    source venv/bin/activate
-                    pip install --upgrade pip
-                    pip install -r requirements.txt
-                '''
+                sh 'python3 -m venv $VENV'
+                sh 'source $VENV/bin/activate && pip install -r requirements.txt'
             }
         }
+
         stage('Run Tests') {
             steps {
-                sh '''
-                    source venv/bin/activate
-                    pytest tests/
-                '''
+                sh 'source $VENV/bin/activate && pytest tests/'
             }
         }
-        stage('Build and Archive') {
+
+        stage('Build Artifact') {
             steps {
-                sh '''
-                    source venv/bin/activate
-                    python setup.py sdist bdist_wheel
-                '''
-                archiveArtifacts artifacts: 'dist/*.whl', fingerprint: true
+                sh 'mkdir -p build && cp -r src build/'
+            }
+        }
+
+        stage('Archive Artifact') {
+            steps {
+                archiveArtifacts artifacts: 'build/**', fingerprint: true
             }
         }
     }
 }
+
 
         
                    
