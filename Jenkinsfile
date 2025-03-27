@@ -10,7 +10,7 @@ pipeline {
             steps {
                 sh '''
                     python3 -m venv venv
-                    source venv/bin/activate
+                    . venv/bin/activate
                     pip install --upgrade pip
                     pip install -r requirements.txt
                 '''
@@ -19,7 +19,7 @@ pipeline {
         stage('Run Tests') {
             steps {
                 sh '''
-                    source venv/bin/activate
+                    . venv/bin/activate
                     pytest tests/
                 '''
             }
@@ -27,7 +27,7 @@ pipeline {
         stage('Build and Archive') {
             steps {
                 sh '''
-                    source venv/bin/activate
+                    . venv/bin/activate
                     python setup.py sdist bdist_wheel
                 '''
                 archiveArtifacts artifacts: 'dist/*.whl', fingerprint: true
@@ -36,5 +36,8 @@ pipeline {
     }
 }
 
+                
+        
+        
            
             
