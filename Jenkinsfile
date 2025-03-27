@@ -1,50 +1,39 @@
-pipeline {
-    agent any
-
-    environment {
-        VENV = 'venv'  // Virtual environment name
-    }
-
+pipeline{
+    agent any 
     stages {
-        stage('Checkout Code') {
+        stage('Clone Repository') {
             steps {
-                git 'https://github.com/Mamatha1206/jenkins_file.git'
-                sh 'ls -la' // Check if files are pulled
+                git url: 'https://github.com/Mamatha1206/jenkins_file.git', branch:'main'
             }
         }
-
-        stage('Setup Python') {
+        stage('Set Up Virtual Environment') {
             steps {
-                sh 'which python3 || echo "Python3 not found!"'
-                sh 'python3 --version'
-                sh 'python3 -m venv $VENV || echo "venv creation failed!"'
-                sh 'ls -la $VENV' // Check if venv is created
-                sh 'source $VENV/bin/activate && pip install --upgrade pip || echo "Pip install failed!"'
-                sh 'source $VENV/bin/activate && pip install -r requirements.txt || echo "Requirements installation failed!"'
+                sh 'python3 -m venv venv'
+                sh '. venv/bin/activate' 
             }
         }
-
+        stage('Install Dependencies') {
+            steps {
+                 sh '. venv/bin/activate && pip install -r requirements.txt'
+            }
+        }
         stage('Run Tests') {
             steps {
-                sh 'source $VENV/bin/activate && pytest tests/ || echo "Tests failed!"'
+                sh '. venv/bin/activate && PYTHONPATH=$PWD pytest test/'
             }
         }
-
         stage('Build Artifact') {
             steps {
-                sh 'mkdir -p build && cp -r src build/'
-                sh 'ls -la build/' // Check if build files are created
+                sh '. venv/bin/activate && python setup.py sdist'
             }
         }
-
         stage('Archive Artifact') {
             steps {
-                archiveArtifacts artifacts: 'build/**', fingerprint: true
+                archiveArtifacts artifacts: 'dist/*.tar.gz', fingerprint: true
             }
         }
     }
 }
-
 
 
         
