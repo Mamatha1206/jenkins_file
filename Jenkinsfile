@@ -15,6 +15,9 @@ pipeline {
         stage('Setup Virtual Environment & Install Dependencies') {
             steps {
                 sh '''
+                    # Ensure Python3 and venv are installed
+                    sudo apt update && sudo apt install -y python3 python3-venv
+
                     # Create a virtual environment
                     python3 -m venv ${PYTHON_ENV}
 
@@ -22,8 +25,8 @@ pipeline {
                     . ${PYTHON_ENV}/bin/activate
 
                     # Upgrade pip and install dependencies
-                    pip install --upgrade pip
-                    pip install -r requirements.txt
+                    ${PYTHON_ENV}/bin/pip install --upgrade pip
+                    ${PYTHON_ENV}/bin/pip install -r requirements.txt
                 '''
             }
         }
@@ -31,23 +34,17 @@ pipeline {
         stage('Run Tests') {
             steps {
                 sh '''
-                    # Activate virtual environment
-                    . ${PYTHON_ENV}/bin/activate
-
-                    # Run tests
-                    pytest tests/
+                    # Run tests using virtual environment
+                    ${PYTHON_ENV}/bin/python -m pytest tests/
                 '''
             }
         }
 
-        stage('Build and Archive Artifacts') {
+        stage('Build and Archive') {
             steps {
                 sh '''
-                    # Activate virtual environment
-                    . ${PYTHON_ENV}/bin/activate
-
-                    # Build Python package
-                    python setup.py sdist bdist_wheel
+                    # Build Python package using virtual environment
+                    ${PYTHON_ENV}/bin/python setup.py sdist bdist_wheel
                 '''
                 
                 # Archive artifacts
@@ -65,6 +62,15 @@ pipeline {
         }
     }
 }
+
+        
+                   
+            
+               
+            
+                
+                
+            
 
 
                 
